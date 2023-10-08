@@ -1,0 +1,30 @@
+---
+title: "Listen to Zvenigorod k"
+format: html
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, echo=FALSE, message=FALSE}
+library(tidyverse)
+readxl::read_xlsx("zvenigorod_в.xlsx") |> 
+  mutate(audio = str_remove(source, ".eaf"),
+         audio = str_c(audio, "-", round(as.double(time_start)*1000)),
+         audio = str_c(audio, "-", round(as.double(time_end)*1000)),
+         audio = str_c("https://github.com/agricolamz/zvenigorod_v/raw/main/audio/", audio, ".wav"),
+         preposition = "") |> 
+  mutate(id = 1:n()) |> 
+  select(id, sentence, audio, preposition) ->
+df
+
+writexl::write_xlsx(df, "fill_me.xlsx")
+
+df |>   
+  mutate(audio = str_glue('<audio controls="" preload="none"><source src="{audio}" type="audio/ogg"></audio> ')) |> 
+  select(-preposition) |> 
+  arrange(id) |> 
+  DT::datatable(escape = FALSE, rownames = FALSE)
+```
+
+
